@@ -7,7 +7,7 @@
 * Related Document: See README.md  
 *
 *******************************************************************************
-* Copyright 2021-2023, Cypress Semiconductor Corporation (an Infineon company) or
+* Copyright 2021-2024, Cypress Semiconductor Corporation (an Infineon company) or
 * an affiliate of Cypress Semiconductor Corporation.  All rights reserved.
 *
 * This software, including source code, documentation and related
@@ -55,7 +55,7 @@
 #define SWITCH_INTR_PRIORITY    (3u)
 
 /* Delay for 5sec */
-#define LED_DELAY               (5000u)
+#define LED_DELAY               (2000u)
 
 /* CY ASSERT failure */
 #define CY_ASSERT_FAILED        (0u)
@@ -183,8 +183,13 @@ int main(void)
         /* Function to enter critical section*/
         interruptState = Cy_SysLib_EnterCriticalSection();
 
-        /* Turn-on the external LED EXTNL_LED (CYBSP_EXTNL_LED) indicating entry of critical section */
+        /* Turn-on the external LED EXTNL_LED (CYBSP_EXTNL_LED) indicating entry of critical section
+         * On-board LED is used for DUAL PORT devices thus the GPIO drive is reversed*/
+#if PMG1_PD_DUALPORT_ENABLE
+        Cy_GPIO_Clr(CYBSP_EXTNL_LED_PORT, CYBSP_EXTNL_LED_PIN);
+#else
         Cy_GPIO_Set(CYBSP_EXTNL_LED_PORT, CYBSP_EXTNL_LED_PIN);
+#endif /* PMG1_PD_DUALPORT_ENABLE */
 
         /* Critical section enabled for 5sec */
         Cy_SysLib_Delay(LED_DELAY);
@@ -192,8 +197,13 @@ int main(void)
         /* Function to exit critical section*/
         Cy_SysLib_ExitCriticalSection(interruptState);
 
-        /* Turn-off the external LED EXTNL_LED (CYBSP_EXTNL_LED) indicating exit of critical section */
+        /* Turn-off the external LED EXTNL_LED (CYBSP_EXTNL_LED) indicating exit of critical section
+         * On-board LED is used for DUAL PORT devices thus the GPIO drive is reversed*/
+#if PMG1_PD_DUALPORT_ENABLE
+        Cy_GPIO_Set(CYBSP_EXTNL_LED_PORT, CYBSP_EXTNL_LED_PIN);
+#else
         Cy_GPIO_Clr(CYBSP_EXTNL_LED_PORT, CYBSP_EXTNL_LED_PIN);
+#endif /* PMG1_PD_DUALPORT_ENABLE */
 
         /* Critical section Disabled for 5sec */
         Cy_SysLib_Delay(LED_DELAY);
